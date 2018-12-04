@@ -1,0 +1,133 @@
+$set_ps_global(SKIN.PATH,%ps_foobar2000_path%/skins/masood_)
+//-------------- colors for top panel, except the volume.
+//-- PINK
+$set_ps_global(LIGHT.COLOR.1,219-149-229)
+$set_ps_global(DARK.COLOR.1,164-151-176)
+//-- WHITE
+$set_ps_global(LIGHT.COLOR.2,248-248-248)
+$set_ps_global(DARK.COLOR.2,221-221-221)
+//-- BLUE
+$set_ps_global(LIGHT.COLOR.3,44-144-181)
+$set_ps_global(DARK.COLOR.3,42-127-160)
+//-- BLACK/GRAY
+$set_ps_global(LINE.COLOR.1,21-21-21)
+$set_ps_global(LINE.COLOR.2,43-43-43)
+//-- BACKGROUND
+$set_ps_global(BG.COLOR,27-27-27)
+
+//----------------Font for gettextwidth
+$set_ps_global(FONT,MonteCarlo)
+
+//--------------media player / love track
+$if(%rating%,$textbutton($sub(%_width%,88),15,25,13,'[-l]','[-l]',
+CONTEXT:'Playback Statistics/Rating/<not set>';REFRESH,
+fontcolor:%DARK.COLOR.1% left,fontcolor:%LIGHT.COLOR.1% left)
+,
+$textbutton($sub(%_width%,88),15,25,13,'[+l]','[+l]',
+CONTEXT:'Playback Statistics/Rating/5';REFRESH,
+fontcolor:%DARK.COLOR.1% left,fontcolor:%LIGHT.COLOR.1% left)
+)
+
+$if(%media player%,$textbutton($sub(%_width%,63),15,30,13,'[-m]','[-m]',
+CONTEXT:'Tagging/Quick Tagger/Set <Media Player> to/[Remove Field]';REFRESH,
+fontcolor:%DARK.COLOR.1% left,fontcolor:%LIGHT.COLOR.1% left)
+,
+$textbutton($sub(%_width%,63),15,30,13,'[+m]','[+m]',
+CONTEXT:'Tagging/Quick Tagger/Set <Media Player> to/true';REFRESH,
+fontcolor:%DARK.COLOR.1% left,fontcolor:%LIGHT.COLOR.1% left)
+)
+
+//------------Tabs
+$textbutton(0,0,35,14,'[vis]','[vis]',
+    PANELSHOW:Playlist:0;PANELSHOW:Playlists:0;PANELSHOW:Search:0;PANELSHOW:Info:0;PANELSHOW:Visuals:1;
+    REFRESH
+,
+$if($isvisible_c(Visuals),fontcolor:%DARK.COLOR.2% left,fontcolor:%DARK.COLOR.1% left),$if($isvisible_c(Visuals),fontcolor:%LIGHT.COLOR.2% left,fontcolor:%LIGHT.COLOR.1% left))
+
+$textbutton(30,0,35,14,'[info]','[info]',
+    PANELSHOW:Playlist:0;PANELSHOW:Playlists:0;PANELSHOW:Search:0;PANELSHOW:Info:1;PANELSHOW:Visuals:0;
+    REFRESH
+,
+$if($isvisible_c(Info),fontcolor:%DARK.COLOR.2% left,fontcolor:%DARK.COLOR.1% left),$if($isvisible_c(Info),fontcolor:%LIGHT.COLOR.2% left,fontcolor:%LIGHT.COLOR.1% left))
+
+$textbutton(0,15,55,13,
+$if(%ispaused%,'[paused]',$if(%isplaying%,'[playing]','[stopped]')),
+$if(%ispaused%,'[paused]',$if(%isplaying%,'[playing]','[stopped]')),
+$if($isvisible_c(Playlist),
+$if($isvisible_c(Playlists),
+    $movepanel_c(Playlist,150,32,$sub(%_width%,150),$sub(%_height%,42))
+    PANELSHOW:Playlist:1;PANELSHOW:Playlists:0;PANELSHOW:Search:0;PANELSHOW:Info:0;PANELSHOW:Visuals:0;
+    REFRESH,
+    $movepanel_c(Playlist,0,32,%_width%,$sub(%_height%,42))
+    PANELSHOW:Playlist:1;PANELSHOW:Playlists:1;PANELSHOW:Search:1;PANELSHOW:Info:0;PANELSHOW:Visuals:0;
+    REFRESH
+),
+PANELSHOW:Playlist:1;PANELSHOW:Playlists:0;PANELSHOW:Search:0;PANELSHOW:Info:0;PANELSHOW:Visuals:0;
+REFRESH
+),
+$if($isvisible_c(Playlist),fontcolor:%DARK.COLOR.2% left,fontcolor:%DARK.COLOR.1% left),$if($isvisible_c(Playlist),fontcolor:%LIGHT.COLOR.2% left,fontcolor:%LIGHT.COLOR.1% left))
+$if(%ispaused%,,$drawtextex( %codec%,55,16,35,13,%LIGHT.COLOR.1%,))
+
+//------------Playback Order
+$if($stricmp($left(%ps_playback_order%,7),'default'),
+    $textbutton($sub(%_width%,37),15,35,13,'[----]','[----]',
+    COMMAND:'Playback/Order/Repeat (playlist)';
+    REFRESH,
+    fontcolor:%DARK.COLOR.2% right,fontcolor:%LIGHT.COLOR.2% right),
+    
+    $if($stricmp($left(%ps_playback_order%,9),'repeat (p'),
+        $textbutton($sub(%_width%,37) right,15,35,13,'[r---]','[r---]',
+        COMMAND:'Playback/Order/Repeat (track)';
+        REFRESH,
+        fontcolor:%DARK.COLOR.2% right,fontcolor:%LIGHT.COLOR.2% right),
+        
+        $if($stricmp($left(%ps_playback_order%,9),'repeat (t'),
+            $textbutton($sub(%_width%,37),15,35,13,'[r-s-]','[r-s-]',
+            COMMAND:'Playback/Order/Random';
+            REFRESH,
+            fontcolor:%DARK.COLOR.2% right,fontcolor:%LIGHT.COLOR.2% right),
+
+       $if($stricmp($left(%ps_playback_order%,9),'random?'),
+            $textbutton($sub(%_width%,37),15,35,13,'[---r]','[---r]',
+            COMMAND:'Playback/Order/Shuffle (tracks)';
+            REFRESH,
+            fontcolor:%DARK.COLOR.2% right,fontcolor:%LIGHT.COLOR.2% right),
+            
+            $textbutton($sub(%_width%,37),15,35,13,'[-z--]','[-z--]',
+            COMMAND:'Playback/Order/Default';
+            REFRESH,
+            fontcolor:%DARK.COLOR.2% right,fontcolor:%LIGHT.COLOR.2% right)
+        )
+    )
+)
+)
+
+//title / feat. artist
+$puts(t_y,$if($or(%album%,%artist%),13,26))
+$puts(a_format,[ $trim($replace(%track artist%,%album artist%,))])
+$puts(full_w,$div($gettextwidth([%title%]$get(a_format),%FONT%),2))
+$puts(title_w,$div($gettextwidth([%title%],%FONT%),2))
+$puts(artist_w,$div($gettextwidth($get(a_format),%FONT%),2))
+$drawtextex([%title%],-$get(artist_w),1,%_width%,$get(t_y),%LIGHT.COLOR.2%,hcenter vcenter)
+$drawtextex($get(a_format),$get(title_w),1,%_width%,$get(t_y),%LIGHT.COLOR.3%,hcenter vcenter end_ellipsis)
+
+//album artist / album
+$puts(aartist_map,$if(%album artist%,%album artist%$if($strcmp($right($lower(%album artist%),1),s),'',''s),))
+$drawtextex($get(aartist_map)[ %album%],0,15,%_width%,13,%LIGHT.COLOR.1%,hcenter vcenter end_ellipsis)
+
+$if(%title%,
+    $font(Arial,7,)
+    $drawstring(───,-$get(full_w),-1,$sub(%_width%,35),$get(t_y),%LINE.COLOR.1%,hcenter vcenter)
+    $drawstring(───,-$get(full_w),0,$sub(%_width%,35),$get(t_y),%LINE.COLOR.2%,hcenter vcenter)
+    $drawstring(───,$get(full_w),-1,$add(%_width%,30),$get(t_y),%LINE.COLOR.1%,hcenter vcenter)
+    $drawstring(───,$get(full_w),0,$add(%_width%,30),$get(t_y),%LINE.COLOR.2%,hcenter vcenter)
+,)
+
+$drawrect($sub(%_width%,90),0,90,31,%BG.COLOR%,,)
+$drawrect(1,31,$sub(%_width%,2),1,%LINE.COLOR.2%,,)
+$drawrect(1,30,$sub(%_width%,2),1,%LINE.COLOR.1%,,)
+
+
+///For the per second section
+$if(%playback_time_remaining%,$drawtextex(%playback_time_remaining%r @,$sub(%_width%,112),2,70,15,%DARK.COLOR.3%,right),)
+$if($strcmp($left(%path%,7),'http://'),$drawtextex(%playback_time%e @,$sub(%_width%,111),2,70,15,%DARK.COLOR.3%,right),)

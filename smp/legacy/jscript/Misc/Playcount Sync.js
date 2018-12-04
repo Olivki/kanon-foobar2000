@@ -1,0 +1,539 @@
+// ==PREPROCESSOR==
+// @import "%fb2k_path%skins\Kanon\jscript\Playcount Sync\common.js"
+// @import "%fb2k_path%skins\Kanon\jscript\Playcount Sync\tooltip_buttons.js"
+// @name "Playcount Sync"
+// @author "marc2003"
+// ==/PREPROCESSOR==
+
+const bw = 24;
+const bh = 24;
+const top_margin = 0;
+const left_margin = 0;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+window.SetProperty("selection_mode", 1);
+const selection_mode = window.GetProperty("selection_mode");
+const panel_id = window.GetProperty("panel_id", window.id);
+const custom_background_file = settings_path + panel_id + "buttons_background";
+let custom_background = read(custom_background_file);
+const username_file = settings_path + "username";
+let username = read(username_file);
+const api_key_file = settings_path + "api_key";
+let api_key = read(api_key_file);
+const autolove_file = settings_path + "autolove";
+let autolove = read(autolove_file);
+const sql_file = data_folder + "test.sql";
+let loved_working = null;
+let playcount_working = null;
+let page = 0;
+let last_page = 0;
+const g_timer = window.CreateTimerInterval(15000);
+
+window.GetProperty("auto_menu", false);
+window.GetProperty("auto_correct", true);
+
+if (!g_metadb) {
+    Buttons = {
+        but: new Button(left_margin, top_margin, bw, bh, {
+            normal: images_path + "buttons\\LASTFM\\Error\\Button.png"
+        }, null, "No selection")
+    };
+}
+
+on_item_focus_change();
+
+if (fb.IsPlaying) {
+    on_playback_new_track();
+}
+
+function on_metadb_changed() {
+    if (!g_metadb) {
+        return;
+    }
+    
+    //artist = fb.TitleFormat("%artist%").EvalWithMetadb(g_metadb);
+    artist =
+        fb.TitleFormat("$if($strstr(%artist%,' ft. '),$substr(%artist%,1,$sub($strstr(%artist%,' ft. '),1)),%artist%)")
+          .EvalWithMetadb(g_metadb);
+    track = fb.TitleFormat("%title%")
+              .EvalWithMetadb(g_metadb);
+    old_userloved = fb.TitleFormat("%LASTFM_LOVED_DB%")
+                      .EvalWithMetadb(g_metadb) === 1 ? 1 : 0;
+    old_userplaycount = fb.TitleFormat("%LASTFM_PLAYCOUNT_DB%")
+                          .EvalWithMetadb(g_metadb);
+    command = "Last.fm " + (old_userloved === 1 ? "Unlove" : "Love") + " Track '" + track + "' by '" + artist + "'";
+    //crc32 = fb.TitleFormat("$crc32($lower(%artist%%title%))").EvalWithMetadb(g_metadb);
+    crc32 = fb.TitleFormat(
+        "$crc32($lower($if($strstr(%artist%,' ft. '),$substr(%artist%,1,$sub($strstr(%artist%,' ft. '),1)),%artist%)%title%))")
+              .EvalWithMetadb(g_metadb);
+    
+    switch (true) {
+        case (username.length === 0):
+        
+        case (api_key.length !== 32):
+            n = "buttons\\LASTFM\\Error\\Button.png";
+            h = "buttons\\LASTFM\\Error\\Button Highlight.png";
+            tooltip = "Please use the context menu to set your Last.fm username and API KEY.";
+            func = null;
+            break;
+        
+        case (!utils.CheckComponent("foo_customdb", true)):
+            n = "buttons\\LASTFM\\Error\\Button.png";
+            h = "buttons\\LASTFM\\Error\\Button Highlight.png";
+            tooltip = "The foo_customdb component is not installed. Please refer to the readme.";
+            func = null;
+            break;
+        
+        case (!utils.CheckComponent("foo_softplaylists", true)):
+            n = "buttons\\LASTFM\\Error\\Button.png";
+            h = "buttons\\LASTFM\\Error\\Button Highlight.png";
+            tooltip = "The foo_softplaylists component is required to love tracks.";
+            func = null;
+            break;
+        
+        default:
+            n = old_userloved === 1 ?
+                "buttons\\LASTFM\\Love\\Button Highlight.png" :
+                "buttons\\LASTFM\\Love\\Button.png";
+            h = old_userloved === 1 ?
+                "buttons\\LASTFM\\Love\\Button.png" :
+                "buttons\\LASTFM\\Love\\Button Highlight.png";
+            tooltip = command;
+            func = function () {
+                lfm_track();
+            };
+            break;
+    }
+    
+    Buttons = {
+        but: new Button(left_margin, top_margin, bw, bh, {
+            normal: images_path + n,
+            hover: images_path + h
+        }, func, tooltip)
+    };
+    
+    window.Repaint();
+}
+
+function on_timer(id) {
+    const temp = page > 1 ? page - 1 : 1;
+    
+    if (loved_working && page === last_page) {
+        xmlhttp.abort();
+        sync_library_loved(temp);
+    } else if (playcount_working && page === last_page) {
+        xmlhttp.abort();
+        sync_library_playcount(temp);
+    } else {
+        last_page = page;
+    }
+}
+
+function on_notify_data(name, data) {
+    if (name === "lastfm_update" && data === 1) {
+        username = read(username_file);
+        api_key = read(api_key_file);
+        on_metadb_changed();
+        loved_working = null;
+        playcount_working = null;
+    }
+}
+
+function on_playback_new_track() {
+    time_elapsed = 0;
+    
+    switch (true) {
+        case (fb.PlaybackLength === 0):
+            target_time = 240;
+            break;
+        
+        case (fb.PlaybackLength >= 30):
+            target_time = Math.min(Math.floor(fb.PlaybackLength / 2), 240);
+            break;
+        
+        default:
+            target_time = 5;
+            break;
+    }
+    
+    on_item_focus_change();
+}
+
+function on_playback_time(time) {
+    //fb.trace(images_path);
+    time_elapsed++;
+    
+    if (time_elapsed === 3 && window.GetProperty("auto_menu") && fb.TitleFormat(autolove)
+                                                                   .Eval() === 1 && old_userloved === 0) {
+        fb.trace("Playcount sync: Automatically loving this track....");
+        lfm_track();
+    }
+    
+    if (time_elapsed === target_time) {
+        sync();
+    }
+}
+
+function lfm_track() {
+    fb.RunContextCommandWithMetadb(command, g_metadb);
+    sync();
+}
+
+function sync() {
+    if (username.length === 0 || api_key.length !== 32) {
+        return (fb.trace("Playcount sync: Can't contact Last.fm. Check your username / API KEY settings."));
+    }
+    
+    if (loved_working || playcount_working) {
+        return;
+    }
+    
+    fb.trace("Playcount sync: Contacting Last.fm....");
+    lastfm("&method=track.getinfo&artist=" + encodeURIComponent(artist) + "&track=" + encodeURIComponent(track) +
+           "&autocorrect=" + (window.GetProperty("auto_correct") ? 1 : 0), "foo_playcount_sync", function () {
+        process();
+    });
+}
+
+function process() {
+    parsed_data = JSON.parse(xmlhttp.responsetext);
+    
+    if (parsed_data.error > 0) {
+        if (parsed_data.error === 6) {
+            fb.trace("Playcount sync: artist / track not found.");
+        } else {
+            fb.trace("Playcount sync: " + xmlhttp.responsetext);
+        }
+        
+        return;
+    }
+    
+    fb.trace("Playcount sync: Last.fm responded 'OK'");
+    
+    userplaycount = parsed_data.track.userplaycount > 0 ? ++parsed_data.track.userplaycount : 1;
+    userloved = parsed_data.track.userloved === 1 ? 1 : 0;
+    
+    if (fb.IsPlaying && time_elapsed >= target_time && fb.PlaybackLength > 29 && fb.PlaybackLength < 10800) {
+        switch (true) {
+            case (userplaycount < old_userplaycount):
+                fb.trace("Playcount sync: Playcount returned from Last.fm is lower than current value. Not updating.");
+                break;
+            
+            case (old_userplaycount !== userplaycount):
+                fb.RunContextCommandWithMetadb("Customdb Delete Playcount", g_metadb);
+                if (old_userloved === 1) fb.RunContextCommandWithMetadb("Customdb Love 0", g_metadb);
+                let attempt = 0;
+                while (fb.TitleFormat("%LASTFM_PLAYCOUNT_DB%")
+                         .EvalWithMetadb(g_metadb) !== userplaycount && attempt <= 3) {
+                    const query1 = "\"INSERT INTO quicktag(url,subsong,fieldname,value) VALUES(\\\"" + crc32 +
+                                   "\\\",\\\"-1\\\",\\\"LASTFM_PLAYCOUNT_DB\\\",\\\"" + userplaycount + "\\\")\";";
+                    WshShell.Run(fso.GetFile(script_path + "sqlite3.exe").ShortPath + " " +
+                                 fso.GetFile(fb.ProfilePath + "customdb_sqlite.db").ShortPath + " " + query1, 0, true);
+                    attempt++;
+                }
+                
+                fb.RunContextCommandWithMetadb("Customdb Refresh", g_metadb);
+                break;
+            
+            default:
+                fb.trace("Playcount sync: No changes found. Not updating.");
+        }
+    }
+    
+    if (old_userloved !== userloved) {
+        fb.RunContextCommandWithMetadb("Customdb Love " + userloved, g_metadb);
+    }
+}
+
+function sync_library_loved(p) {
+    if (loved_working == null) {
+        return (fb.trace("Playcount sync: Import aborted."));
+    }
+    
+    page = p;
+    lastfm("&method=user.getlovedtracks&limit=200&user=" + username + "&page=" + page, "foo_playcount_sync",
+           function () {
+               process_library_loved();
+           });
+}
+
+function process_library_loved() {
+    parsed_data = JSON.parse(xmlhttp.responsetext);
+    
+    if (parsed_data.error > 0) {
+        loved_working = null;
+        fb.ShowPopupMessage(
+            "There is a problem with the Last.fm web services. Please try again later.\n\n" + xmlhttp.responsetext,
+            "Playcount sync");
+        return;
+    }
+    
+    if (page === 1) {
+        try {
+            pages = parsed_data.lovedtracks["@attr"].totalPages;
+        } catch (e) {
+            Console.Log(e);
+        }
+    }
+    
+    if (pages > 0) {
+        for (i = 0; i < parsed_data.lovedtracks.track.length; i++) {
+            const data = [];
+            data[0] = parsed_data.lovedtracks.track[i].artist.name;
+            data[1] = parsed_data.lovedtracks.track[i].name;
+            data[2] = 1;
+            
+            if (data.length === 3) {
+                fb.trace(r + ": " + data[0] + " - " + data[1]);
+                url = fb.TitleFormat("$crc32($lower(" + tf(data[0]) + tf(data[1]) + "))")
+                        .EvalWithMetadb(g_metadb);
+                sql += "INSERT OR REPLACE INTO quicktag(url,subsong,fieldname,value) VALUES(\"" + url +
+                       "\",\"-1\",\"LASTFM_LOVED_DB\",\"" + data[2] + "\");" + "\n";
+                r++;
+            }
+        }
+        
+        fb.trace("Completed page " + page + " of " + pages + " (loved tracks)");
+    }
+    
+    if (page < pages) {
+        page++;
+        sync_library_loved(page);
+    } else {
+        loved_working = null;
+        playcount_working = true;
+        pages = 0;
+        r = 1;
+        sync_library_playcount(1);
+    }
+}
+
+function sync_library_playcount(p) {
+    if (playcount_working == null) {
+        return (fb.trace("Playcount sync: Import aborted."));
+    }
+    
+    page = p;
+    lastfm("&method=library.gettracks&limit=100&user=" + username + "&page=" + page, "foo_playcount_sync", function () {
+        process_library_playcount();
+    });
+}
+
+function process_library_playcount() {
+    parsed_data = JSON.parse(xmlhttp.responsetext);
+    
+    if (parsed_data.error > 0) {
+        playcount_working = null;
+        fb.ShowPopupMessage(
+            "There is a problem with the Last.fm web services. Please try again later.\n\n" + xmlhttp.responsetext,
+            "Playcount sync");
+        return;
+    }
+    
+    if (page === 1) {
+        try {
+            pages = parsed_data.tracks["@attr"].totalPages;
+        } catch (e) {
+            Console.Log(e);
+        }
+    }
+    
+    
+    if (pages > 0) {
+        for (i = 0; i < parsed_data.tracks.track.length; i++) {
+            const data = [];
+            data[0] = parsed_data.tracks.track[i].artist.name;
+            data[1] = parsed_data.tracks.track[i].name;
+            data[2] = parsed_data.tracks.track[i].playcount;
+            if (data.length === 3) {
+                fb.trace(r + ": " + data[0] + " - " + data[1] + " " + data[2]);
+                url = fb.TitleFormat("$crc32($lower(" + tf(data[0]) + tf(data[1]) + "))")
+                        .EvalWithMetadb(g_metadb);
+                sql += "INSERT OR REPLACE INTO quicktag(url,subsong,fieldname,value) VALUES(\"" + url +
+                       "\",\"-1\",\"LASTFM_PLAYCOUNT_DB\",\"" + data[2] + "\");" + "\n";
+                r++;
+            }
+        }
+        
+        fb.trace("Completed page " + page + " of " + pages + " (playcount)");
+    }
+    
+    if (page < pages) {
+        page++;
+        sync_library_playcount(page);
+    } else {
+        try {
+            sql += "COMMIT;";
+            ts = fso.OpenTextFile(sql_file, 2, true, 0);
+            ts.WriteLine(sql);
+            ts.close();
+            import_sql();
+            playcount_working = null;
+        } catch (e) {
+            Console.Log(e);
+        }
+        
+    }
+}
+
+function import_sql() {
+    try {
+        cmd_file = fso.GetFile(script_path + "lastfm_sql.cmd").ShortPath;
+        db_file = fso.GetFile(fb.ProfilePath + "customdb_sqlite.db").ShortPath;
+        WshShell.Run(cmd_file + " " + fso.GetFile(script_path + "sqlite3.exe").ShortPath + " " + db_file + " " +
+                     fso.GetFile(sql_file).ShortPath);
+    } catch (e) {
+        Console.Log(e);
+    }
+}
+
+function on_size() {
+    ww = window.Width;
+    wh = window.Height;
+}
+
+function on_mouse_rbtn_up(x, y) {
+    const _menu = window.CreatePopupMenu();
+    const _li = window.CreatePopupMenu();
+    const _au = window.CreatePopupMenu();
+    const _child = window.CreatePopupMenu();
+    const _auto = window.CreatePopupMenu();
+    let idx;
+    
+    _li.AppendMenuItem(utils.CheckComponent("foo_customdb", true) && !loved_working && !playcount_working && g_metadb &&
+                       username.length > 0 && api_key.length === 32 ? MF_STRING : MF_GRAYED, 4,
+                       "Create and import SQL file");
+    _li.AppendMenuItem(utils.CheckComponent("foo_customdb", true) && fso.FileExists(sql_file) ? MF_STRING : MF_GRAYED,
+                       5, "Import SQL file");
+    
+    _menu.AppendMenuItem(MF_STRING | MF_POPUP, _li.ID, "Library import");
+    
+    _au.AppendMenuItem(MF_STRING, 6, "Use spelling correction");
+    _au.CheckMenuItem(6, window.GetProperty("auto_correct"));
+    
+    _menu.AppendMenuItem(MF_STRING | MF_POPUP, _au.ID, "Auto-updates");
+    _menu.AppendMenuItem(MF_SEPARATOR, 0, 0);
+    
+    _auto.AppendMenuItem(MF_STRING, 200, "Off");
+    _auto.AppendMenuItem(MF_STRING, 201, "On");
+    _auto.AppendMenuItem(MF_SEPARATOR, 0, 0);
+    _auto.AppendMenuItem(window.GetProperty("auto_menu") ? MF_STRING : MF_GRAYED, 202, "Condition");
+    _auto.CheckMenuRadioItem(200, 201, window.GetProperty("auto_menu") ? 201 : 200);
+    
+    _menu.AppendMenuItem(MF_STRING | MF_POPUP, _auto.ID, "Automatically love tracks");
+    
+    _child.AppendMenuItem(MF_STRING, 101, "None");
+    _child.AppendMenuItem(MF_STRING, 102, (dui ? "Default UI " : "Columns UI ") + "default");
+    _child.AppendMenuItem(MF_STRING, 103, "Splitter");
+    _child.AppendMenuItem(MF_STRING, 104, "Custom ");
+    _child.AppendMenuItem(MF_SEPARATOR, 0, 0);
+    _child.AppendMenuItem(window.GetProperty("mode") === 104 ? MF_STRING : MF_GRAYED, 105, "Set custom colour...");
+    _child.CheckMenuRadioItem(101, 104, window.GetProperty("mode", 101));
+    
+    _menu.AppendMenuItem(MF_SEPARATOR, 0, 0);
+    _menu.AppendMenuItem(MF_STRING | MF_POPUP, _child.ID, "Background");
+    _menu.AppendMenuItem(MF_SEPARATOR, 0, 0);
+    _menu.AppendMenuItem(username.length > 0 ? MF_STRING : MF_GRAYED, 1, "Visit your Last.fm user profile page");
+    _menu.AppendMenuItem(MF_SEPARATOR, 0, 0);
+    _menu.AppendMenuItem(!loved_working && !playcount_working ? MF_STRING : MF_GRAYED, 2,
+                         "Set your Last.fm username...");
+    _menu.AppendMenuItem(!loved_working && !playcount_working ? MF_STRING : MF_GRAYED, 3, "Set your API KEY...");
+    _menu.AppendMenuItem(MF_SEPARATOR, 0, 0);
+    
+    if (utils.IsKeyPressed(0x10)) {
+        _menu.AppendMenuItem(MF_STRING, 9, "Properties");
+    }
+    
+    _menu.AppendMenuItem(MF_STRING, 10, "Configure...");
+    idx = _menu.TrackPopupMenu(x, y);
+    
+    switch (idx) {
+        case 1:
+            try {
+                WshShell.run("http://www.last.fm/user/" + encodeURIComponent(username));
+            } catch (e) {
+                fb.ShowPopupMessage("Unable to launch your default browser.", "Playcount sync");
+            }
+            break;
+        
+        case 2:
+            username = text_input_box("Playcount sync", "Please enter your Last.fm username", username_file);
+            on_metadb_changed();
+            window.NotifyOthers("lastfm_update", 1);
+            break;
+        
+        case 3:
+            api_key =
+                text_input_box("Playcount sync", "Please enter your Last.fm API KEY\n\nhttp://www.last.fm/api/account",
+                               api_key_file);
+            on_metadb_changed();
+            window.NotifyOthers("lastfm_update", 1);
+            break;
+        
+        case 4:
+            pages = 0;
+            r = 1;
+            sql = "BEGIN TRANSACTION;\n";
+            loved_working = true;
+            sync_library_loved(1);
+            break;
+        
+        case 5:
+            import_sql();
+            break;
+        
+        case 6:
+            window.SetProperty("auto_correct", !window.GetProperty("auto_correct"));
+            break;
+        
+        case 101:
+        
+        case 102:
+        
+        case 103:
+        
+        case 104:
+            window.SetProperty("mode", idx);
+            window.Repaint();
+            break;
+        
+        case 105:
+            custom_background = text_input_box("Playcount sync",
+                                               "Enter a custom colour for the background. Uses RGB. Example usage:\n\n234-211-74",
+                                               custom_background_file);
+            window.Repaint();
+            break;
+        
+        case 200:
+        
+        case 201:
+            window.SetProperty("auto_menu", idx !== 200);
+            break;
+        
+        case 202:
+            autolove = text_input_box("Playcount sync",
+                                      "The result of the title formatting set here must equal 1 for a track to be automatically loved.\n\nExample:\n\n$ifequal(%rating%,5,1,0)",
+                                      autolove_file);
+            break;
+        
+        case 9:
+            window.ShowProperties();
+            break;
+        
+        case 10:
+            window.ShowConfigure();
+            break;
+    }
+    
+    _menu;
+    _auto;
+    _li;
+    _au;
+    _child;
+    return true;
+}
+
+function on_paint(gr) {
+    buttons_background(gr);
+    buttonsDraw(gr);
+}

@@ -1,0 +1,34 @@
+$textbutton(250,15,110,35,
+  Playlist, Playlist,
+    $if($isvisible_c(Playlist), $if($isvisible_c(Playlists),
+      $movepanel_c(Playlist,150,32,$sub(%_width%,150),$sub(%_height%,42))
+         PANELSHOW:Playlist:1;
+         PANELSHOW:Playlists:0;
+         PANELSHOW:Search:0;
+         PANELSHOW:Info:0;
+         PANELSHOW:Visuals:0;
+         PANELSHOW:LineOne:0;
+         PANELSHOW:LineTwo:0;
+      REFRESH,
+
+      $movepanel_c(Playlist,0,32,%_width%,$sub(%_height%,42))
+         PANELSHOW:Playlist:1;
+         PANELSHOW:Playlists:1;
+         PANELSHOW:Search:1;
+         PANELSHOW:Info:0;
+         PANELSHOW:Visuals:0;
+         PANELSHOW:LineOne:1;
+         PANELSHOW:LineTwo:1;
+      REFRESH
+    ),
+      PANELSHOW:Playlist:1;
+      PANELSHOW:Playlists:0;
+      PANELSHOW:Search:0;
+      PANELSHOW:Info:0;
+      PANELSHOW:Visuals:0;
+      PANELSHOW:LineOne:0;
+      PANELSHOW:LineTwo:0;
+    REFRESH
+  ),
+  $if($isvisible_c(Playlist),fontcolor:%DARK.COLOR.2% left,fontcolor:%DARK.COLOR.1% left),
+    $if($isvisible_c(Playlist),fontcolor:%LIGHT.COLOR.2% left,fontcolor:%LIGHT.COLOR.1% left))

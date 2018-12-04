@@ -1,0 +1,55 @@
+$ifequal($get_ps_global(PANEL.CURRENT),1,
+$showpanel_c(Playlist,1)
+$movepanel_c(Playlist,0,75,%_width%,$sub(%_height%,111))
+
+//$drawrect($sub($div(%_width%,2),130),0,80,25,%LIGHT.COLOR.1%,)
+$drawrect($sub($div(%_width%,2),132),-1,84,28,%LINE.BORDER%,%LINE.OUTLINE%)
+//$drawrect($sub($div(%_width%,2),130),0,80,25,%BG.COLOR%,)
+$gradientrect($sub($div(%_width%,2),130),0,80,25,%LINE.LIGHTBLUE%,%LINE.DARKBLUE%,vertical)
+$drawstring(PLAYLIST,$sub($div(%_width%,2),130),0,80,25,%DARK.COLOR.2%,vcenter hcenter elipchar glow_aa,)
+//$drawtextex(PLAYLIST,$sub($div(%_width%,2),125),5,80,25,%DARK.COLOR.2%,vcenter hcenter elipchar)
+,
+$showpanel_c(Playlist,0)
+$drawrect($sub($div(%_width%,2),132),-1,84,28,%LINE.BORDER%,%LINE.OUTLINE%)
+$drawrect($sub($div(%_width%,2),130),0,80,25,%BG.COLOR%,)
+$drawstring(PLAYLIST,$sub($div(%_width%,2),130),0,80,25,%DARK.COLOR.4%,vcenter hcenter elipchar glow_aa,)
+//$drawtextex(PLAYLIST,$sub($div(%_width%,2),125),5,80,25,%DARK.COLOR.1%,vcenter hcenter elipchar)
+)
+
+//#1
+$textbutton($sub($div(%_width%,2),130),0,80,25,,,SETGLOBAL:PANEL.CURRENT:1;REFRESH,,)
+
+//#2
+//$drawrect($sub($div(%_width%,2),40),0,80,25,%LIGHT.COLOR.1%,)
+
+$ifequal($get_ps_global(PANEL.CURRENT),2,
+$showpanel_c(Visuals,1)
+$drawrect($sub($div(%_width%,2),42),-1,84,28,%LINE.BORDER%,%LINE.OUTLINE%)
+$gradientrect($sub($div(%_width%,2),40),0,80,25,%LINE.LIGHTBLUE%,%LINE.DARKBLUE%,vertical)
+//$drawrect($sub($div(%_width%,2),40),0,80,25,%BG.COLOR%,)
+//$gradientrect($sub($div(%_width%,2),130),0,79,24,%LINE.LIGHTBLUE%,%LINE.DARKBLUE%,vertical aa)
+$drawstring(LYRICS,$sub($div(%_width%,2),55),0,110,25,%DARK.COLOR.2%,vcenter hcenter elipchar glow_aa,)
+//$drawtextex(LYRICS,$sub($div(%_width%,2),55),0,110,25,%DARK.COLOR.3%,vcenter hcenter elipchar)
+,
+$showpanel_c(Visuals,0)
+$drawrect($sub($div(%_width%,2),42),-1,84,28,%LINE.BORDER%,%LINE.OUTLINE%)
+$drawrect($sub($div(%_width%,2),40),0,80,25,%BG.COLOR%,)
+$drawstring(LYRICS,$sub($div(%_width%,2),55),0,110,25,%DARK.COLOR.4%,vcenter hcenter elipchar glow_aa,)
+)
+
+//#2
+$textbutton($sub($div(%_width%,2),40),0,80,25,,,SETGLOBAL:PANEL.CURRENT:2;REFRESH,,)
+
+//$drawrect($add($div(%_width%,2),50),0,80,25,%LIGHT.COLOR.1%,)
+
+$ifequal($get_ps_global(PANEL.CURRENT),3,
+$showpanel_c(Visuals,1)
+$drawrect($add($div(%_width%,2),48),-1,84,28,%LINE.BORDER%,%LINE.OUTLINE%)
+$gradientrect($add($div(%_width%,2),50),0,80,25,%LINE.LIGHTBLUE%,%LINE.DARKBLUE%,vertical)
+$drawstring(INFO,$add($div(%_width%,2),50),0,80,25,%DARK.COLOR.2%,vcenter hcenter elipchar glow_aa,)
+,
+$showpanel_c(Visuals,0)
+$drawrect($add($div(%_width%,2),48),-1,84,28,%LINE.BORDER%,%LINE.OUTLINE%)
+$drawrect($add($div(%_width%,2),50),0,80,25,%BG.COLOR%,)
+$drawstring(INFO,$add($div(%_width%,2),50),0,80,25,%DARK.COLOR.4%,vcenter hcenter elipchar glow_aa,)
+)

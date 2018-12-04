@@ -1,0 +1,77 @@
+$puts(RectColor,100-100-100-105)
+$puts(RectColor2,90-90-105)
+$puts(RectColor3,110-110-110-105)
+$puts(RectColor4,30-30-30)
+$puts(RectColor6,35-40-45)
+$puts(RectColor5,55-60-65)
+$puts(RectColor7,100-100-100)
+$puts(ImagePath,skins\FSP\)
+$put(cov,$sub(%el_height%,8))
+$put(cov2,4)
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////// RECTS & SYMBOLS
+$if(%el_focused%,
+
+
+$drawrect(110,0,$sub(%el_width%,110),$sub(%el_height%,0),$get(RectColor),,)
+
+$puts(TextColor,255-255-255)
+$puts(TextColor2,255-255-255)
+$puts(OutlineColor1,outline:$get(TextColor)-100)
+$puts(OutlineColor2,outline:$get(TextColor)-100)
+$gradientrect(110,0,$sub(%el_width%,110),1,$get(RectColor3)-15,$get(RectColor3),horizontal,50)
+$gradientrect(110,$sub(%el_height%,1),$sub(%el_width%,110),1,$get(RectColor6)-15,$get(RectColor6),horizontal,50)
+,
+
+$puts(TextColor,255-255-255)
+$puts(TextColor2,155-155-155)
+$puts(OutlineColor1,outline:$get(TextColor)-50)
+$puts(OutlineColor2,outline:$get(TextColor2)-10)
+$gradientrect(110,0,$sub(%el_width%,110),1,$get(RectColor5)-15,$get(RectColor5),horizontal,50)
+$gradientrect(110,$sub(%el_height%,1),$sub(%el_width%,110),1,$get(RectColor6)-15,$get(RectColor6),horizontal,50)
+)
+
+
+
+$font(AvantGarde Bk BT,7,)
+$drawstring(%tracknumber%,130,,30,,$get(TextColor2),vcenter hcenter  elipchar glow_aa,$get(OutlineColor2))
+
+
+
+$drawstring(%title%,170,,$sub(%el_width%,525),,$get(TextColor),vcenter elipchar glow_aa,$get(OutlineColor1))
+
+
+$drawstring(%codec% %bitrate% kbps,$sub(%el_width%,350),,250,,$get(TextColor2),vcenter elipchar glow_aa,$get(OutlineColor2))
+
+
+$drawstring(%length%,$sub(%el_width%,95),4,90,$sub(%el_height%,8),$get(TextColor2),vcenter right elipchar glow_aa,$get(OutlineColor2))
+
+
+
+
+//COVER
+
+$enabledraw(1)
+
+$setworldtransform($add(2,-%ON.ART.IN.GROUP%))
+
+$put(cov,100)
+$put(cov2,0)
+
+
+//COVER
+
+$drawrect(2,$get(cov2),$get(cov),$get(cov),,$get(RectColor7),)
+$imageabs(2,$get(cov2),$get(cov),$get(cov),$get(ImagePath)music.png,nokeepaspect,,255)
+$imageabs(2,$get(cov2),$get(cov),$get(cov),$replace(%path%,%filename_ext%,folder.png),nokeepaspect,,255)
+$imageabs(2,$get(cov2),$get(cov),$get(cov),$replace(%path%,%filename_ext%,folder.jpg),nokeepaspect,,255)
+$imageabs(2,$get(cov2),$get(cov),$get(cov),$replace(%path%,%filename_ext%,cover.jpg),nokeepaspect,,255)
+$imageabs(2,$get(cov2),$get(cov),$get(cov),$replace(%path%,%filename_ext%,%album%.png),nokeepaspect,,255)
+$imageabs(2,$get(cov2),$get(cov),$get(cov),$replace(%path%,%filename_ext%,%album%.jpg),nokeepaspect,,255)
+$drawrect(2,$get(cov2),$get(cov),$get(cov),,$get(RectColor4))

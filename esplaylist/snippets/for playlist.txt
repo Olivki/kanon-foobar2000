@@ -1,0 +1,1 @@
+$movepanel_c(Playlist,0,74,%_width%,$sub(%_height%,110))

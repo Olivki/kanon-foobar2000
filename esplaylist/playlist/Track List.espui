@@ -1,0 +1,130 @@
+$puts(COLOR1,$if($or(%el_isplaying%,%el_selected%),
+    %LIGHT.COLOR.1%,
+    %DARK.COLOR.1%
+))
+
+$puts(COLOR2,$if($or(%el_isplaying%,%el_selected%),
+    %LIGHT.COLOR.2%,
+    %DARK.COLOR.2%
+))
+
+$puts(COLOR3,$if($or(%el_isplaying%,%el_selected%),
+    %LIGHT.COLOR.3%,
+    %DARK.COLOR.3%
+))
+
+$puts(COLOR4,$if($or(%ispaused%,%el_isplaying%),
+    %DARK.COLOR.2%,
+    %DARK.COLOR.1%
+))
+
+//- Track title
+// Just to make it a bit easier to use
+$puts(track_title,$if(%el_selected%, %title%,%title%))
+
+
+//- Draws the background for the track that's currently selected.
+$if(%el_selected%,
+    $drawrect($add(%TRACK.MARGIN%, $div(%ART.MARGIN%, 2), -3), 0, %el_width%, %el_height%, %SELECTED.COLOR.1%,,) 
+,)
+
+//- Does the track indention.
+// Also sets the font to GuiFx v2 which is basically just a font with a bunch of neat symbols in it.
+// That's done to render a decent looking Play & Pause icon.
+$font(Guifx v2 Transports, 13,)
+$if(%isplaying%, 
+    $drawtext($if(%ispaused%, 2, $if(%isplaying%, 1,)), 
+        $add(%TRACK.MARGIN%, 0), 0, 24, %el_height%, %DARK.COLOR.2%, right vcenter mempos)
+    ,
+    $font(Segoe UI, 10,)
+    $drawtext($if2(+%queue_index%, $if2([%tracknumber%], $add(%el_item_index%, 1))), $add(%TRACK.MARGIN%, 0), 0, 24, %el_height%, %DARK.COLOR.1%, right vcenter mempos)
+)
+
+//- Makes the currently selected tracks text all be in bold. 
+// (Might be removed in the future, it causes a lot of annoying issues and looks a bit eeeh.)
+// Everything above is moot, removed that feature, lol.
+$font(Segoe UI, 10,)
+
+//- Track Length
+$puts(track_length,$gettextwidth($get(track_title)))
+
+//- Max Track Width
+// Haha, yes.
+//$puts(max_track_width,$if(%el_selected%,$add($sub(%el_width%,$add(%TRACK.MARGIN%,545)),$gettextwidth( )),$sub(%el_width%,$add(%TRACK.MARGIN%,550))))
+$puts(max_track_width,$sub(%el_width%,$add(%TRACK.MARGIN%,550)))
+
+//- Track Width
+// I want to seriously die.
+//$puts(track_width,$ifgreater($gettextwidth($get(track_title)),$get(max_track_width),$if(%el_selected%,$sub($add($get(max_track_width),$gettextwidth( )),6),$sub($get(max_track_width),2)),$gettextwidth($get(track_title))))
+//$puts(track_width,$ifgreater($gettextwidth($get(track_title)),$get(max_track_width),$if(%el_selected%,$sub($add($get(max_track_width),$gettextwidth( )),6),$sub($get(max_track_width),2)),$gettextwidth($get(track_title))))
+$puts(track_width,$ifgreater($gettextwidth($get(track_title)),$get(max_track_width),$sub($get(max_track_width),2),$gettextwidth($get(track_title))))
+
+$puts(track_width,$ifgreater($gettextwidth($get(track_title)),$get(max_track_width),$get(max_track_width),$get(track_length)))
+
+//- Draws the title of the track.
+$drawtextex($get(track_title), $add(%TRACK.MARGIN%, 38), 0, $get(max_track_width), %el_height%, $get(COLOR2), vcenter end_ellipsis)
+
+//- Draws artist of the track.
+// TODO: Make the artist text actually properly align with the text even if it gets cut off.
+// In other words, hello darkness my old friend.
+//$drawtextex(%feat_format%,
+//    $ifgreater($add(%TRACK.MARGIN%, $gettextwidth([$get(track_title)]), 38), 
+//        $add(%TRACK.MARGIN%, 38, $sub(%el_width%,
+//        $add(%TRACK.MARGIN%, 550))),
+//        $sub($add(%TRACK.MARGIN%, $gettextwidth([$get(track_title)])), 6),
+//    $add(%TRACK.MARGIN%, $gettextwidth([$get(track_title)]), 38)), 0,
+//    $sub(%el_width%, $add(%TRACK.MARGIN%, 600, 114)), %el_height%, 
+//$get(COLOR3), vcenter end_ellipsis)
+
+$drawtextex(%feat_format%, $add($add(%TRACK.MARGIN%, 38), $get(track_width)), 0, $get(max_track_width), %el_height%, %DARK.COLOR.3%, vcenter end_ellipsis)
+
+//- Draws the codec & bitrate.
+// Useful for finding out that some of you files are actually 128kpbs.
+$ifequal(%BITRATE.WARNING%, 1,
+        $ifgreater(%bitrate%, 319,
+            $drawtext(%codec% %bitrate%kbps, -280, 0,, %el_height%, %DARK.COLOR.1%, vcenter right),
+            $drawtext(%codec% %bitrate%kbps, -280, 0,, %el_height%, %HEART.COLOR%, vcenter right)
+        ),
+    $drawtext(%codec% %bitrate%kbps, -280, 0,, %el_height%, %DARK.COLOR.1%, vcenter right)
+)
+//$drawtext(%codec% %bitrate%kbps, -280, 0,, %el_height%, %DARK.COLOR.1%, vcenter right)
+
+//- Sets the font to a smaller size for the play count.
+$font(Segoe UI,10,)
+
+//- Stores the value for the correct playcount.
+// This has to be on one line or this "language" reads it wrong and the spacing gets all messed up.
+$puts(play_count,$ifgreater(%LASTFM_PLAYCOUNT_DB%,%play_count%,$ifgreater(%LASTFM_PLAYCOUNT_DB%,0,%LASTFM_PLAYCOUNT_DB%,),$ifgreater(%play_count%,0,%play_count%,)))
+
+//- Draws the play count of the song.
+// It's configured so that it will use whichever play count is highest, be it the one on your last.fm profile, or the local one.
+// This is so that you don't get a "false" play count in case you haven't been syncing your play count up with last.fm for a while.
+$drawtext($get(play_count), -50, 0,, %el_height%, %DARK.COLOR.3%, vcenter right)
+
+//- Draws the track length.
+$drawtext(%length%, -5, 0,, %el_height%, %DARK.COLOR.2%, vcenter right)
+
+$font(Segoe UI, 12,)
+
+//- Draws the heart icon if rating is above 3 stars.
+$ifgreater(%rating%, 3,
+    $drawtextex(♥, $sub(-55, $gettextwidth($get(play_count))), 0,, %el_height%, %HEART.COLOR%, vcenter right)
+,)
+
+//- Draws the cover art.
+$if($strstr(%el_preset_name%,'/'),
+    $ifequal(%ALBUM.ART%, 0,,
+        $enabledraw(1)
+        $setworldtransform(2)
+
+        $drawrect(%ART.MARGIN%, 0, $add(%ART.SIZE%, 4), $add(%ART.SIZE%, 4), %LINE.COLOR.2%,,) 
+        $drawrect($add(%ART.MARGIN%, 1), 1, $add(%ART.SIZE%, 2), $add(%ART.SIZE%, 2), %LINE.COLOR.1%,,) 
+            $if(%HTTP.CHECK%, $imageabs(%ART.MARGIN%, 0, %ART.SIZE%, %ART.SIZE%, %SKIN.PATH%cover\radio.png, 
+                $ifgreater(%ART.KEEPASPECTRATIO%, 0,, nokeepaspect),, %ART.OPACITY%),)
+            $if(%LASTFM.CHECK%,$imageabs(%ART.MARGIN%, 0, %ART.SIZE%, %ART.SIZE%, %SKIN.PATH%cover\lfm_nocover.png, 
+                $ifgreater(%ART.KEEPASPECTRATIO%, 0,, nokeepaspect),, %ART.OPACITY%),)
+        $imageabs($add(%ART.MARGIN%, 2), 2, %ART.SIZE%, %ART.SIZE%, %el_group_first_path%, artreader 
+            $ifgreater(%ART.KEEPASPECTRATIO%,0,,nokeepaspect),,
+        %ART.OPACITY%)
+    )
+)

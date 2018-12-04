@@ -1,0 +1,9 @@
+var color = {
+    background: RGB(34, 34, 34),
+    frame:      RGB(27, 27, 27),
+    progress:   RGB(135, 35, 53),
+    progHead:   RGB(168, 168, 168),
+    lineDark:   RGB(21,21,21),
+    lineLight:  RGB(43,43,43),
+    volumeText: RGB(248,248,248)
+};

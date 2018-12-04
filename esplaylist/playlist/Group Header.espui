@@ -1,0 +1,43 @@
+$font(Segoe UI, 12,)
+
+$ifequal(%el_group_depth%, 0,
+	$if($strstr(%el_preset_name%, '/Artist'),
+   		$drawtextex([%album artist%], %HEADER.MARGIN%, 0, $get(a_cutoff), %el_height%, %DARK.COLOR.2%, vcenter end_ellipsis)
+   		$puts(x_rect, $add($gettextwidth([%album artist% ]), %HEADER.MARGIN%))
+)
+
+$if($strstr(%el_preset_name%, '/Genre'),
+   $drawtextex($if2(%genre%,Unkown Genre), %HEADER.MARGIN%, 0, $get(a_cutoff), %el_height%, %LIGHT.COLOR.1%, vcenter end_ellipsis)
+   $puts(x_rect, $add($gettextwidth($if2(%genre%, Unkown Genre)), %HEADER.MARGIN%))
+)
+
+$if($strstr(%el_preset_name%, '/Source'),
+   $drawtextex($if2(%source%, Unkown Source), %HEADER.MARGIN%, 0, $get(a_cutoff), %el_height%, %LIGHT.COLOR.1%, vcenter end_ellipsis)
+   $puts(x_rect, $add($gettextwidth($if2(%source%, Unkown Source)), %HEADER.MARGIN%))
+)
+
+$if($strstr(%el_preset_name%, '//'),
+   $drawtextex(%el_sum_length%, 0, 0,, %el_height%, %DARK.COLOR.2%, right vcenter)
+)
+,
+
+$drawtextex(%el_sum_length%, $sub(-%HEADER.MARGIN%, 5), 5,, %el_height%, %DARK.COLOR.2%, right vcenter)
+
+$drawtextex([%genre% ], $sub($sub(-$gettextwidth(%el_sum_length%), %HEADER.MARGIN%), 10), 5,, %el_height%, %DARK.COLOR.1%, right vcenter end_ellipsis)
+
+$puts(a_cutoff, $sub(%el_width%, %HEADER.MARGIN%, $gettextwidth( [%source% ][%genre% ]%el_sum_length%)))
+
+$drawtextex(%album%, $add(%HEADER.MARGIN%, 10), 5, $get(a_cutoff), %el_height%, %DARK.COLOR.2%, vcenter end_ellipsis)
+
+$puts(aa_cutoff, $sub(%el_width%, %HEADER.MARGIN%, $gettextwidth( [%album%] -[%source% ][%genre% ]%el_sum_length%)))
+
+$if(%album artist%,
+        $drawtextex(by, $add($add($gettextwidth(%album%-), %HEADER.MARGIN%), 10), 5, $get(aa_cutoff), %el_height%, %DARK.COLOR.1%, vcenter end_ellipsis)
+        $drawtextex(%album artist%, $add($add($gettextwidth(%album%-), %HEADER.MARGIN%), 35), 5, $get(aa_cutoff), %el_height%, %DARK.COLOR.3%, vcenter end_ellipsis)
+	,)
+)
+
+$ifgreater(%discnumber%, 0, 
+		$drawtextex(DISC %discnumber%, $add($add($gettextwidth(%album% by %album artist%), %HEADER.MARGIN%), 25), 5, $get(aa_cutoff), $add(%el_height%, 2), %DARK.COLOR.1%, vcenter end_ellipsis)
+	,
+)

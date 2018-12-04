@@ -1,0 +1,48 @@
+$font(Arimo,9,)
+
+
+$ifequal($get_ps_global(showpanel),1,
+
+$showpanel_c(sng,1)
+$drawrect(250,62,110,3,$get(RectColor),$get(RectColor2))
+$drawstring(Playlists,250,38,110,25,$get(TextColor2),vcenter hcenter elipchar glow_aa,$get(OutlineColor2))
+,
+$showpanel_c(sng,0)
+$drawrect(250,62,110,3,$get(RectColor3),$get(RectColor2))
+$drawstring(Playlists,250,38,110,25,$get(TextColor1),vcenter hcenter elipchar glow_aa,$get(OutlineColor1))
+)
+
+
+$ifequal($get_ps_global(showpanel),2,
+
+$showpanel_c(brow,1)
+$drawrect(370,62,110,3,$get(RectColor),$get(RectColor2))
+$drawstring(Browser,370,38,110,25,$get(TextColor2),vcenter hcenter elipchar glow_aa,$get(OutlineColor2))
+,
+$showpanel_c(brow,0)
+$drawrect(370,62,110,3,$get(RectColor3),$get(RectColor2))
+$drawstring(Browser,370,38,110,25,$get(TextColor1),vcenter hcenter elipchar glow_aa,$get(OutlineColor1))
+)
+
+$ifequal($get_ps_global(showpanel),3,
+
+$showpanel_c(inf,1)
+$drawrect(490,62,110,3,$get(RectColor),$get(RectColor2))
+$drawstring(Info Track,490,38,110,25,$get(TextColor2),vcenter hcenter elipchar glow_aa,$get(OutlineColor2))
+,
+$showpanel_c(inf,0)
+$drawrect(490,62,110,3,$get(RectColor3),$get(RectColor2))
+$drawstring(Info Track,490,38,110,25,$get(TextColor1),vcenter hcenter elipchar glow_aa,$get(OutlineColor1))
+)
+
+$puts(RectColor,131-184-215)
+$puts(RectColor2,0-0-0-55)
+$puts(RectColor3,0-0-0)
+$puts(RectColor4,55-55-55)
+$puts(TextColor1,175-175-175)
+$puts(TextColor2,255-255-255)
+$puts(TextColor3,105-105-105)
+$puts(OutlineColor1,outline:105-105-105-50)
+$puts(OutlineColor2,outline:255-255-255-50)
+$puts(OutlineColor3,outline:0-0-0-50)
+$puts(ImagePath,skins\FSP\)
