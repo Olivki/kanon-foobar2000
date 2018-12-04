@@ -2,6 +2,7 @@ include(`${fb.FoobarPath}skins\\Kanon\\SMP\\core\\utils\\Importer.js`);
 window.DefinePanel("Seekbar", { author: "Olivki" });
 
 import_default("Helpers");
+import_legacy("Essential.Utils");
 import_legacy("Essential.DrawingHelpers");
 import_legacy("Essential.VariableHelpers");
 import_legacy("Essential.ColorHelper");
