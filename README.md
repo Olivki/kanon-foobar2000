@@ -8,6 +8,4 @@ A foobar2000 skin made using spider-monkey-panel, jscript, columns ui &amp; espl
   ![One](img/1.png)
   ![Two](img/2.png)
   ![Three](img/3.png)
-  
-  ---
 </details>
