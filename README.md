@@ -1,6 +1,8 @@
 # Kanon
 A foobar2000 skin made using spider-monkey-panel, jscript, columns ui &amp; esplaylist.
 
+Currently in the process of being rewritten.
+
 <details>
   <summary>Screenshots</summary>
   ---
