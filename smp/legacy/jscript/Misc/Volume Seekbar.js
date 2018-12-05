@@ -37,12 +37,12 @@ function on_paint(graphics) {
     
     graphics.SetTextRenderingHint(TextRenderingHint.ClearTypeGridFit);
     
-    DrawBorderedRect(0, 0, Positions.Width - 1, Positions.Height, InterfaceColors.Frame, InterfaceColors.DarkLine,
+    drawBorderedRect(0, 0, Positions.Width - 1, Positions.Height, InterfaceColors.Frame, InterfaceColors.DarkLine,
                      graphics);
     
-    DrawHollowBorderedRect(0, 1, headTrackPosition + 1, Positions.Height - 3, InterfaceColors.LightLine, graphics);
+    drawHollowBorderedRect(0, 1, headTrackPosition + 1, Positions.Height - 3, InterfaceColors.LightLine, graphics);
     
-    DrawBorderedGradientRect(0, 0, headTrackPosition, Positions.Height, 90,
+    drawBorderedGradientRect(0, 0, headTrackPosition, Positions.Height, 90,
                              InterfaceGradientColors.ProgressGradientStart, InterfaceGradientColors.ProgressGradientEnd,
                              InterfaceColors.DarkLine, graphics);
     
@@ -57,10 +57,10 @@ function on_paint(graphics) {
             HoveringPosition -= textWidth + 4;
         }
         
-        DrawHollowBorderedRect(HoveringPosition - 3, 2, textWidth + 4, Positions.Height - 5, InterfaceColors.LightLine,
+        drawHollowBorderedRect(HoveringPosition - 3, 2, textWidth + 4, Positions.Height - 5, InterfaceColors.LightLine,
                                graphics);
         
-        DrawBorderedGradientRect(HoveringPosition - 2, 3, textWidth + 2, Positions.Height - 6, 90,
+        drawBorderedGradientRect(HoveringPosition - 2, 3, textWidth + 2, Positions.Height - 6, 90,
                                  InterfaceGradientColors.ProgressGradientStart,
                                  InterfaceGradientColors.ProgressGradientEnd, InterfaceColors.DarkLine, graphics);
         

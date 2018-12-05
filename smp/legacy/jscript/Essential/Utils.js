@@ -199,7 +199,7 @@ function ZeroPad(number) {
  * @return    {Number}        [Value: -100 <= vol <= 0]
  */
 function PositionToVolume(position) {
-    return 50 * Math.log(0.99 * pos + 0.01) / Math.LN10;
+    return 50 * Math.log(0.99 * position + 0.01) / Math.LN10;
 }
 
 /**
@@ -208,5 +208,5 @@ function PositionToVolume(position) {
  * @return {number}
  */
 function VolumeToPosition(volume) {
-    return (Math.pow(10, v / 50) - 0.01) / 0.99;
+    return (Math.pow(10, volume / 50) - 0.01) / 0.99;
 }

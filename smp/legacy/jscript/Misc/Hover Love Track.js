@@ -39,7 +39,7 @@ function on_paint(graphics) {
 	graphics.SetTextRenderingHint(TextRenderingHint.AntiAlias);
 
 	if (Hovering) {
-		DrawBorderedRect(0, 0, Positions.Width, Positions.Height, HoverInterfaceColors.Background, InterfaceColors.DarkLine, graphics);
+		drawBorderedRect(0, 0, Positions.Width, Positions.Height, HoverInterfaceColors.Background, InterfaceColors.DarkLine, graphics);
 		graphics.DrawString("♥", TextFont, TextColor, 0, 0, Positions.Width, Positions.Height - 2,
 			StringFormat(StringAlignment.Center, StringAlignment.Center));
 	}

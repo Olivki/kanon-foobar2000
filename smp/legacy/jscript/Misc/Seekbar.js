@@ -34,13 +34,13 @@ function on_size() {
 function on_paint(graphics) {
     if (fb.PlaybackTime > 0) {
         /** Background to prevent redrawing issues. **/
-        DrawRect(0, 1, Positions.Width, Positions.Height - 2, InterfaceColors.Frame, graphics);
+        drawRect(0, 1, Positions.Width, Positions.Height - 2, InterfaceColors.Frame, graphics);
         
         /** Draws the outline of the border.  */
-        DrawRect(0, 1, getTrackHeadPosition() + 2, Positions.Height - 2, InterfaceColors.LightLine, graphics);
+        drawRect(0, 1, getTrackHeadPosition() + 2, Positions.Height - 2, InterfaceColors.LightLine, graphics);
         
         /** Draws the stuff.  */
-        DrawBorderedGradientRect(0, 0, getTrackHeadPosition(), Positions.Height, 90,
+        drawBorderedGradientRect(0, 0, getTrackHeadPosition(), Positions.Height,
                                  InterfaceGradientColors.ProgressGradientStart,
                                  InterfaceGradientColors.ProgressGradientEnd, InterfaceColors.DarkLine, graphics);
     }

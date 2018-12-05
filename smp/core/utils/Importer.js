@@ -22,7 +22,7 @@ function import_default(name) {
  * @author Olivki
  */
 function import_core(name) {
-    include(`${kanon.CORE_PATH}${name.replace(".", "\\")}.js`);
+    include(`${CORE_PATH}${name.replace(".", "\\")}.js`);
 }
 
 /**
@@ -67,5 +67,5 @@ function import_element(name) {
  * @author Olivki
  */
 function import_legacy(name) {
-    include(`${kanon.LEGACY_PATH}${name.replace(".", "\\")}.js`);
+    include(`${LEGACY_PATH}${name.replace(".", "\\")}.js`);
 }

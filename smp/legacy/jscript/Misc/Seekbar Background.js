@@ -19,9 +19,9 @@ function on_size() {
 }
 
 function on_paint(graphics) {
-    DrawHollowBorderedRect(0, 0, Positions.Width - 1, Positions.Height - 1, InterfaceColors.LightLine, graphics);
+    drawHollowBorderedRect(0, 0, Positions.Width - 1, Positions.Height - 1, InterfaceColors.LightLine, graphics);
     
-    DrawBorderedRect(1, 1, Positions.Width - 3, Positions.Height - 2, InterfaceColors.Background,
+    drawBorderedRect(1, 1, Positions.Width - 3, Positions.Height - 2, InterfaceColors.Background,
                      InterfaceColors.DarkLine, graphics);
 }
 
