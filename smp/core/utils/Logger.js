@@ -28,5 +28,3 @@ class Logger {
         this.log("TRACE", output);
     }
 }
-
-const log = new Logger("Kanon");

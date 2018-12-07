@@ -1,8 +1,8 @@
-include(`${fb.FoobarPath}skins\\Kanon\\SMP\\core\\utils\\Importer.js`);
+include(`${fb.FoobarPath}skins\\Kanon\\SMP\\core\\Kanon.js`);
 window.DefinePanel("Volume Seekbar", { author: "Olivki" });
 
 import_default("Helpers");
-import_legacy("Essential.DrawingHelpers");
+import_util("ui.Graphics");
 import_legacy("Essential.VariableHelpers");
 import_legacy("Essential.ColorHelper");
 
@@ -42,9 +42,8 @@ function on_paint(graphics) {
     
     drawHollowBorderedRect(0, 1, headTrackPosition + 1, Positions.Height - 3, InterfaceColors.LightLine, graphics);
     
-    drawBorderedGradientRect(0, 0, headTrackPosition, Positions.Height, 90,
-                             InterfaceGradientColors.ProgressGradientStart, InterfaceGradientColors.ProgressGradientEnd,
-                             InterfaceColors.DarkLine, graphics);
+    drawBorderedGradientRect(0, 0, headTrackPosition, Positions.Height, InterfaceGradientColors.ProgressGradientStart,
+                             InterfaceGradientColors.ProgressGradientEnd, InterfaceColors.DarkLine, graphics, 90);
     
     graphics.DrawString(volumeText, TextFont, InterfaceColors.TextColor, 0, -1, Positions.Width, Positions.Height,
                         StringFormat(StringAlignment.Center, StringAlignment.Center));
@@ -59,10 +58,10 @@ function on_paint(graphics) {
         
         drawHollowBorderedRect(HoveringPosition - 3, 2, textWidth + 4, Positions.Height - 5, InterfaceColors.LightLine,
                                graphics);
-        
-        drawBorderedGradientRect(HoveringPosition - 2, 3, textWidth + 2, Positions.Height - 6, 90,
+    
+        drawBorderedGradientRect(HoveringPosition - 2, 3, textWidth + 2, Positions.Height - 6,
                                  InterfaceGradientColors.ProgressGradientStart,
-                                 InterfaceGradientColors.ProgressGradientEnd, InterfaceColors.DarkLine, graphics);
+                                 InterfaceGradientColors.ProgressGradientEnd, InterfaceColors.DarkLine, graphics, 90);
         
         graphics.DrawString(HoveringSeek, hoverFont, InterfaceColors.TextColor, HoveringPosition, 0, textWidth,
                             Positions.Height, StringFormat(StringAlignment.Center, StringAlignment.Center));

@@ -39,10 +39,10 @@ class Point {
     
     /**
      * Sets the [Y]{@link Point#Y} value of the point.
-     * @param {!number} x - The new X value to set.
+     * @param {!number} x - The new X value to set.◘
      * @constructor
      */
-    set Y(x) { this.x = x; }
+    set Y(y) { this.y = y; }
     
     /**
      * Updates both the x & y value at the same time.
@@ -80,6 +80,10 @@ class Point {
         const dy = a.y - b.y;
         
         return Math.hypot(dx, dy);
+    }
+    
+    static to(x, y) {
+        return new Point(x, y);
     }
 }
 
@@ -140,33 +144,9 @@ class Rectangle extends Point {
      * @returns {boolean}
      * @throws Will throw an error if all of the parameters are undefined.
      */
-    inBounds(x, y, point) {
-        // Screw speed, I need my syntatic sugar.
-        if (x === undefined || y === undefined && point !== undefined) {
-            return isWithinBounds(point.x, point.y, this.x, this.y, this.width, this.height);
-        } else if (point === undefined) {
-            // noinspection JSCheckFunctionSignatures
-            return isWithinBounds(x, y, this.x, this.y, this.width, this.height);
-        }
-        
-        throw "None of the parameters are actually defined.";
+    inBounds(point) {
+        return isWithinBounds(point.X, point.Y, this.X, this.Y, this.Width, this.Height);
     }
-}
-
-/**
- * Checks whether the given X and Y coordinates are within the bounds of the rectangle.
- *
- * @param {!number} x - Placement on the X axis.
- * @param {!number} y - Placement on the Y axis.
- * @param {!number} rectangleX - The rectangles placement on the X axis.
- * @param {!number} rectangleY - The rectangles placement on the Y axis.
- * @param {!number} rectangleWidth - The width of the rectangle.
- * @param {!number} rectangleHeight - The height of the rectangle.
- * @returns {boolean}
- * @author Olivki
- */
-function isWithinBounds(x, y, rectangleX, rectangleY, rectangleWidth, rectangleHeight) {
-    return x >= rectangleX && y >= rectangleY && x <= rectangleX + rectangleWidth && y <= rectangleY + rectangleHeight;
 }
 
 /**
@@ -196,4 +176,20 @@ function addFunction(object, name, func) {
     } else {
         object[name] = func;
     }
+}
+
+/**
+ * Checks whether the given X and Y coordinates are within the bounds of the rectangle.
+ *
+ * @param {!number} pointX - Placement on the X axis.
+ * @param {!number} pointY - Placement on the Y axis.
+ * @param {!number} x - The rectangles placement on the X axis.
+ * @param {!number} y - The rectangles placement on the Y axis.
+ * @param {!number} width - The width of the rectangle.
+ * @param {!number} height - The height of the rectangle.
+ * @returns {boolean}
+ * @author Olivki
+ */
+function isWithinBounds(pointX, pointY, x, y, width, height) {
+    return pointX >= x && pointY >= y && pointX <= x + width && pointY <= y + height;
 }

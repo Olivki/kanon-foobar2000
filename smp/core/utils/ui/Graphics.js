@@ -113,3 +113,9 @@ function drawBorderedGradientRect(x, y, width, height, gradientColorStart, gradi
     drawGradientRect(x, y, width, height, gradientColorStart, gradientColorEnd, graphics, angle);
     drawHollowBorderedRect(x, y, width, height - 1, borderColor, graphics);
 }
+
+function drawCenteredString(text, rectangle, color, font, graphics) {
+    graphics.SetTextRenderingHint(TextRenderingHint.ClearTypeGridFit); // AntiAliasGridFit
+    graphics.DrawString(text, font, color, 0, 0, rectangle.Width, rectangle.Height,
+                        StringFormat(StringAlignment.Center, StringAlignment.Center));
+}
